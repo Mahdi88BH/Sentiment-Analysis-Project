@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment AI | Quantum Analysis Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        :root {
+            --sidebar-width: 320px;
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d50bb;
+            --dark-deep: #0f0c29;
+            --accent-green: #00ff88;
+            --font-main: 'Montserrat', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        body { 
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0f0c29 100%);
+            color: #e0e0e0;
+            font-family: var(--font-main);
+            display: flex; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            margin: 0;
+        }
+
+        /* Sidebar Glassmorphism */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: rgba(10, 10, 25, 0.95);
+            backdrop-filter: blur(15px);
+            position: fixed;
+            left: 0; top: 0;
+            padding: 25px;
+            border-right: 1px solid rgba(0, 210, 255, 0.3);
+            z-index: 1000;
+        }
+
+        /* Scan Line Animation */
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: var(--neon-blue);
+            position: absolute;
+            left: 0; top: 0;
+            box-shadow: 0 0 15px var(--neon-blue);
+            animation: scanMove 8s linear infinite;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            padding: 40px;
+        }
+
+        /* Header Lab */
+        .hero-section { 
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .system-status {
+            position: absolute;
+            top: 15px; right: 25px;
+            font-size: 0.65rem;
+            font-family: var(--font-mono);
+            color: var(--accent-green);
+            letter-spacing: 1px;
+        }
+
+        /* Navigation Switch (Tabs) */
+        .nav-pills .nav-link {
+            color: #888;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-right: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .nav-pills .nav-link.active {
+            color: var(--neon-blue);
+            background: rgba(0, 210, 255, 0.1);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Cyber Cards */
+        .card { 
+            border: 1px solid rgba(0, 210, 255, 0.1); 
+            border-radius: 18px; 
+            background: rgba(20, 20, 40, 0.5);
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: var(--neon-blue) !important;
+            font-family: var(--font-mono);
+            padding: 12px;
+        }
+
+        .btn-custom { 
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            font-family: var(--font-mono);
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 12px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 25px var(--neon-blue);
+        }
+
+        /* Sidebar Stats */
+        .global-stats-container {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-purple);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar shadow-lg">
+    <div class="scan-line"></div>
+    <div class="text-center mb-5 animate__animated animate__pulse animate__infinite">
+        <i class="fas fa-microchip fa-2x text-info"></i>
+        <h6 class="mt-3 fw-bold" style="letter-spacing: 4px; font-family: var(--font-mono); color: var(--neon-blue);">NEURAL_CORE_v3</h6>
+    </div>
+    
+    <div class="global-stats-container mb-4">
+        <canvas id="globalTrendChart" style="max-height: 115px;"></canvas>
+        <div class="text-center mt-3 text-uppercase" style="font-size: 0.6rem; color: var(--neon-purple); font-family: var(--font-mono);">
+            <i class="fas fa-sync-alt fa-spin me-1"></i> Global Signal Synthesis
+        </div>
+    </div>
+
+    <h6 class="text-uppercase small mb-3 border-bottom pb-2" style="color: #666; font-family: var(--font-mono); font-size: 0.65rem;">System Logs</h6>
+    <div class="history-list">
+        {% if history %}
+            {% for item in history %}
+            <div class="history-item animate__animated animate__fadeInLeft">
+                <div class="d-flex justify-content-between mb-1" style="color: var(--neon-blue);">
+                    <span>[{{ item.type }}]</span>
+                    <span>{{ item.timestamp }}</span>
+                </div>
+                <div class="text-truncate opacity-75" style="color: #fff;">{{ item.preview }}</div>
+                <div class="mt-2 fw-bold" style="color: var(--accent-green);">> {{ item.result }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center text-muted small py-4" style="font-family: var(--font-mono);">Awaiting Input...</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="hero-section animate__animated animate__fadeIn">
+        <div class="system-status">
+            <i class="fas fa-circle animate__animated animate__flash animate__infinite me-1"></i> PROCESSOR_READY | NODE_PROD_01
+        </div>
+        <h1 class="fw-bold text-white mb-2"><i class="fas fa-terminal me-3 text-info"></i>ANALYSIS_LAB</h1>
+        <p class="text-info small text-uppercase m-0" style="letter-spacing: 6px; font-family: var(--font-mono);">Meta-Processing of Neural Text Streams</p>
+    </div>
+
+    <div class="container-fluid">
+        <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="pills-scan-tab" data-bs-toggle="pill" data-bs-target="#pills-scan" type="button">
+                    <i class="fas fa-satellite me-2"></i>UNIT_SCAN
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="pills-batch-tab" data-bs-toggle="pill" data-bs-target="#pills-batch" type="button">
+                    <i class="fas fa-server me-2"></i>DATA_INJECTION
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-scan" role="tabpanel">
+                <div class="card animate__animated animate__fadeInUp">
+                    <h6 class="text-uppercase text-info mb-4" style="font-family: var(--font-mono); font-size: 0.8rem;"><i class="fas fa-search me-2"></i>Instant Signal Decoding</h6>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <textarea name="text_input" class="form-control mb-4" rows="6" placeholder="Inject text signal for neural processing..." required></textarea>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <select name="model_choice" class="form-select">
+                                    <option value="custom">STACKING_CORE (PRIMARY_OPTIMIZED)</option>
+                                    <option value="hf">TRANSFORMER_V3 (DISTILBERT_MODEL)</option>
+                                    <option value="nltk">VADER_BASE (LEXICAL_ANALYSIS)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-custom w-100">EXECUTE_SCAN</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {% if result %}
+                    <div class="mt-4 p-4 border-start border-4 border-success animate__animated animate__slideInRight" style="background: rgba(0, 255, 136, 0.05);">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="text-uppercase small opacity-50 mb-1" style="font-family: var(--font-mono); font-size: 0.65rem;">Classification_Output:</div>
+                                <h2 class="fw-bold mb-0" style="color: var(--accent-green); letter-spacing: 2px;">{{ result }}</h2>
+                            </div>
+                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                <div class="text-uppercase small opacity-50 mb-1" style="font-family: var(--font-mono); font-size: 0.65rem;">Certitude_Factor:</div>
+                                <h2 class="fw-bold mb-0 text-white">{{ confidence }}%</h2>
+                                <div class="progress mt-2" style="width: 220px; margin-left: auto; height: 3px;"><div class="progress-bar bg-success" style="width: {{ confidence }}%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-batch" role="tabpanel">
+                <div class="card p-5 text-center animate__animated animate__fadeIn">
+                    <div class="mb-4"><i class="fas fa-database fa-4x text-info"></i></div>
+                    <h4 class="fw-bold text-uppercase" style="letter-spacing: 4px; font-family: var(--font-mono);">Massive_Batch_Processor</h4>
+                    <p class="text-muted mb-4 small" style="font-family: var(--font-mono);">Supported Stream: CSV_SERIAL_DATA (MAX 10MB)</p>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row justify-content-center g-4">
+                            <div class="col-md-5">
+                                <input type="file" name="csv_file" class="form-control" required>
+                            </div>
+                            <div class="col-md-5">
+                                <select name="model_choice_batch" class="form-select">
+                                    <option value="compare">🔍 ALL_AGENTS_COMPARE (DEEP_BENCHMARK)</option>
+                                    <option value="custom">🚀 STACKING_CORE (PRIMARY)</option>
+                                    <option value="hf">🤖 TRANSFORMER_AGENT (DISTILBERT)</option>
+                                    <option value="nltk">📊 LEXICAL_AGENT (VADER)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-10 mt-2">
+                                <button type="submit" class="btn btn-custom w-100 py-3">INITIALIZE_INJECTION_SEQUENCE</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% if batch_mode or compare_mode %}
+        <div class="row mt-5 animate__animated animate__fadeInUp">
+            <div class="col-12 card p-4">
+                <h6 class="text-info text-uppercase mb-4" style="font-family: var(--font-mono); font-size: 0.75rem;"><i class="fas fa-project-diagram me-2"></i>Signal_Output_Visualizer</h6>
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-7">
+                        <canvas id="batchChart" style="max-height: 400px;"></canvas>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="table-responsive" style="font-family: var(--font-mono); font-size: 0.68rem;">
+                            {{ table_preview|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Config Graphique Sidebar
+    const gStats = JSON.parse('{{ global_stats_json|safe }}');
+    new Chart(document.getElementById('globalTrendChart'), {
+        type: 'bar',
+        data: {
+            labels: ['NEG', 'NEU', 'POS'],
+            datasets: [{
+                data: [gStats.Négatif, gStats.Neutre, gStats.Positif],
+                backgroundColor: ['#ff4b2b', '#757575', '#00ff88'],
+                borderWidth: 0
+            }]
+        },
+        options: { 
+            indexAxis: 'y', 
+            plugins: { legend: { display: false } },
+            scales: { 
+                x: { display: false }, 
+                y: { ticks: { color: '#fff', font: { size: 9, family: 'IBM Plex Mono' } }, grid: { display: false } } 
+            }
+        }
+    });
+
+    {% if batch_mode or compare_mode %}
+    const ctx = document.getElementById('batchChart').getContext('2d');
+    const dataRaw = JSON.parse('{{ stats_json|safe }}');
+    
+    if ("{{ compare_mode }}" === "True") {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Négatif', 'Neutre', 'Positif'],
+                datasets: [
+                    { label: 'STACKING', data: [dataRaw.Stacking.Négatif, dataRaw.Stacking.Neutre, dataRaw.Stacking.Positif], backgroundColor: '#00d2ff' },
+                    { label: 'TRANSFORMER', data: [dataRaw.HuggingFace.Négatif, dataRaw.HuggingFace.Neutre, dataRaw.HuggingFace.Positif], backgroundColor: '#9d50bb' },
+                    { label: 'LEXICAL', data: [dataRaw.NLTK.Négatif, dataRaw.NLTK.Neutre, dataRaw.NLTK.Positif], backgroundColor: '#ffffff' }
+                ]
+            },
+            options: { 
+                plugins: { legend: { labels: { color: '#fff', font: { family: 'IBM Plex Mono' } } } },
+                scales: { 
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fff' } },
+                    x: { ticks: { color: '#fff' } }
+                }
+            }
+        });
+    } else {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(dataRaw),
+                datasets: [{ data: Object.values(dataRaw), backgroundColor: ['#ff4b2b', '#757575', '#00ff88'], borderColor: '#0f0c29' }]
+            },
+            options: { plugins: { legend: { labels: { color: '#fff' } } } }
+        });
+    }
+    {% endif %}
+</script>
+</body>
+</html>

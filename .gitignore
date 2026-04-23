@@ -1,2 +1,38 @@
-.git
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
 venv/
+ENV/
+env.bak/
+venv.bak/
+core/ml_models/
+# --- Django ---
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+Notebook/
+# --- Environnement & Sécurité ---
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Modèles ML & Data (Important) ---
+# On ignore les fichiers de données CSV et les gros modèles pour ne pas saturer Git
+*.csv
+*.joblib
+*.pkl
+*.h5
+*.pth
+*.onnx
+
+# --- IDEs & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
