@@ -28,13 +28,13 @@ Une application web moderne d'analyse de sentiments permettant de comparer plusi
 ## 🏗️ Architecture du Projet (Pipeline)
 Le flux de données suit une architecture structurée allant de la collecte des données à la visualisation sur le dashboard.
 
-![Architecture du Projet](static/images/project_architecture.png)
+![Architecture du Projet](./core/static/images/project_architecture.png)
 *Description : Pipeline de traitement, de l'injection du CSV via Django à l'inférence des modèles et au rendu Chart.js.*
 
 ## 🧠 Architecture du Modèle (Stacking Ensemble)
 Notre modèle "PRO" repose sur une stratégie de Stacking, fusionnant les prédictions de plusieurs classifieurs de base pour une décision finale plus robuste.
 
-![Architecture du Modèle](static/images/model_architecture.png)
+![Architecture du Modèle](./core/static/images/model_architecture.png)
 *Description : Architecture à deux niveaux (Base Learners & Meta-Learner) avec extraction de caractéristiques TF-IDF.*
 
 ## 🚀 Installation et Lancement
