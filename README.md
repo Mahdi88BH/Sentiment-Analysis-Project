@@ -1,4 +1,4 @@
-# Sentiment-Analysis-Project# 🎭 Sentiment Analysis Dashboard - Cyber-Lab
+# Sentiment-Analysis-Project 🎭 
 
 ![Django](https://img.shields.io/badge/Framework-Django%205.0-092e20?style=for-the-badge&logo=django)
 ![Python](https://img.shields.io/badge/Python-3.12-3776ab?style=for-the-badge&logo=python)
