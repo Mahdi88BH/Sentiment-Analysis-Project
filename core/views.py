@@ -13,7 +13,7 @@ sia = SentimentIntensityAnalyzer()
 hf_pipe = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
 def get_predictions(texts, model_choice):
-    """Fonction utilitaire pour obtenir les stats selon le modèle choisi"""
+  
     results = []
     try:
         if model_choice == 'custom':
@@ -41,7 +41,7 @@ def get_predictions(texts, model_choice):
     }
 
 def home(request):
-    # 1. Sécurisation de l'initialisation de l'historique
+    
     if 'analysis_history' not in request.session or not isinstance(request.session['analysis_history'], list):
         request.session['analysis_history'] = []
     
